@@ -6,6 +6,10 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Arcade Vault: online arcade platform where users play games and compete for high scores (UI copy is in Spanish). The project follows Spec Driven Design (`/spec` and `/spec-impl` skills from `Klerith/fernando-skills`, per README).
 
+## Skills
+
+Usa siempre /frontend-design para diseñar la interface de usuario
+
 ## Next.js version warning
 
 Next 16.4.2 + React 19.3 with breaking changes versus common training data. Per `AGENTS.md`, read the relevant guide in `node_modules/next/dist/docs/` (`01-app`, `02-pages`, `03-architecture`, …) before writing Next code, and heed deprecation notices. For example, the root layout is typed with the global `LayoutProps<"/">` helper, not hand-written props.

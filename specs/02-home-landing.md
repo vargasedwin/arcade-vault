@@ -1,6 +1,6 @@
 # SPEC 02 — Landing page en `/` y Biblioteca en `/games`
 
-> **Status:** Aprobado
+> **Status:** Implementado
 > **Depends on:** SPEC 01
 > **Date:** 2026-10-16
 > **Objective:** Implementar en `/` la landing page del prototipo `references/templates/home-about/` (hero, por qué Arcade Vault, juegos, stats, actividad en vivo, precios y CTA final) y mover la Biblioteca y el detalle de juego a `/games`.
@@ -108,24 +108,24 @@ Cada paso deja la app ejecutable y es commiteable por separado.
 
 ## Criterios de aceptación
 
-- [ ] `npm run lint`, `npx tsc --noEmit` y `npm run build` terminan sin errores.
-- [ ] `/` muestra la landing; `/games` muestra los 8 juegos de la Biblioteca con búsqueda y chips funcionando como en el SPEC 01.
-- [ ] `/games/caida` muestra el detalle con 10 filas de leaderboard y `/games/caida/jugar` abre el reproductor.
-- [ ] `/juegos/caida` responde con redirect permanente a `/games/caida`, y `/juegos/caida/jugar` a `/games/caida/jugar`.
-- [ ] `/games/no-existe` y `/games/no-existe/jugar` devuelven la página 404.
-- [ ] En el hero aparecen el eyebrow con cursor parpadeante, las 3 líneas del título ("EL ARCADE" / "CLÁSICO ESTÁ" / "DE VUELTA"), el subtítulo, los botones "EXPLORAR JUEGOS" y "CREAR CUENTA", el indicador "DESLIZA" y 8 siluetas.
-- [ ] "EXPLORAR JUEGOS" y "VER TODOS LOS JUEGOS →" navegan a `/games`; "CREAR CUENTA" y "EMPEZAR GRATIS →" a `/auth`; "VER SALÓN →" a `/salon`; "INSERTAR MONEDA →" a `/games`.
-- [ ] La landing tiene 4 tarjetas de características, 6 mini-tarjetas, 3 bloques de stats, 7 filas en "ÚLTIMAS PUNTUACIONES", 5 filas en "TOP JUGADORES · HOY" (con `#01`…`#05`, las 3 primeras destacadas), 6 beneficios, 3 preguntas frecuentes y el CTA final.
-- [ ] La primera mini-tarjeta es BLOQUE BUSTER y las 6 salen de `getGames()`; clic en una abre `/games/<id>` de ese juego.
-- [ ] Las secciones con `.reveal` obtienen la clase `in` al entrar en viewport al hacer scroll, y no antes.
-- [ ] Desde el detalle y el reproductor, "VOLVER AL VAULT" navega a `/games`; en el salón, el botón de volver también.
-- [ ] Tras enviar el formulario de `/auth` (y tras "Jugar como invitado") la app redirige a `/games`.
-- [ ] El Nav muestra "Inicio", "Biblioteca" y "Salón de la Fama" (sin "Acerca de"); "Inicio" está activo solo en `/` y "Biblioteca" en `/games` y sus subrutas; el panel móvil muestra los mismos links.
-- [ ] El logo del Nav navega a `/`.
+- [x] `npm run lint`, `npx tsc --noEmit` y `npm run build` terminan sin errores.
+- [x] `/` muestra la landing; `/games` muestra los 8 juegos de la Biblioteca con búsqueda y chips funcionando como en el SPEC 01.
+- [x] `/games/caida` muestra el detalle con 10 filas de leaderboard y `/games/caida/jugar` abre el reproductor.
+- [x] `/juegos/caida` responde con redirect permanente a `/games/caida`, y `/juegos/caida/jugar` a `/games/caida/jugar`.
+- [x] `/games/no-existe` y `/games/no-existe/jugar` devuelven la página 404.
+- [x] En el hero aparecen el eyebrow con cursor parpadeante, las 3 líneas del título ("EL ARCADE" / "CLÁSICO ESTÁ" / "DE VUELTA"), el subtítulo, los botones "EXPLORAR JUEGOS" y "CREAR CUENTA", el indicador "DESLIZA" y 8 siluetas.
+- [x] "EXPLORAR JUEGOS" y "VER TODOS LOS JUEGOS →" navegan a `/games`; "CREAR CUENTA" y "EMPEZAR GRATIS →" a `/auth`; "VER SALÓN →" a `/salon`; "INSERTAR MONEDA →" a `/games`.
+- [x] La landing tiene 4 tarjetas de características, 6 mini-tarjetas, 3 bloques de stats, 7 filas en "ÚLTIMAS PUNTUACIONES", 5 filas en "TOP JUGADORES · HOY" (con `#01`…`#05`, las 3 primeras destacadas), 6 beneficios, 3 preguntas frecuentes y el CTA final.
+- [x] La primera mini-tarjeta es BLOQUE BUSTER y las 6 salen de `getGames()`; clic en una abre `/games/<id>` de ese juego.
+- [x] Las secciones con `.reveal` obtienen la clase `in` al entrar en viewport al hacer scroll, y no antes.
+- [x] Desde el detalle y el reproductor, "VOLVER AL VAULT" navega a `/games`; en el salón, el botón de volver también.
+- [x] Tras enviar el formulario de `/auth` (y tras "Jugar como invitado") la app redirige a `/games`.
+- [x] El Nav muestra "Inicio", "Biblioteca" y "Salón de la Fama" (sin "Acerca de"); "Inicio" está activo solo en `/` y "Biblioteca" en `/games` y sus subrutas; el panel móvil muestra los mismos links.
+- [x] El logo del Nav navega a `/`.
 - [ ] Con ancho ≤ 768 px la landing no genera scroll horizontal y el menú ≡ abre y cierra el panel móvil.
-- [ ] La captura de `/` a 1440×900 coincide con la del prototipo servido por HTTP en layout, textos, fuentes y colores; solo difieren las fases de animación y el badge de Next.js en modo dev.
-- [ ] Ningún archivo bajo `app/components/` ni las páginas acceden a `localStorage`; solo lo hace `app/data/`.
-- [ ] No queda ninguna referencia a `/juegos` en `app/` fuera de `next.config.ts`.
+- [x] La captura de `/` a 1440×900 coincide con la del prototipo servido por HTTP en layout, textos, fuentes y colores; solo difieren las fases de animación y el badge de Next.js en modo dev.
+- [x] Ningún archivo bajo `app/components/` ni las páginas acceden a `localStorage`; solo lo hace `app/data/`.
+- [x] No queda ninguna referencia a `/juegos` en `app/` fuera de `next.config.ts`.
 
 ---
 

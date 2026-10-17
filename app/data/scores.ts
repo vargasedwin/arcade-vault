@@ -22,14 +22,31 @@ export type LeaderboardRow = {
   score: number;
   date: string;
 };
-export type SavedScore = {
+export type NewScore = {
   game: string;
   score: number;
   name: string;
-  at: number;
 };
 
-const SCORES_KEY = "av_scores";
+// Nombre del jugador para el leaderboard; independiente del nick de sesión (av_user).
+const PLAYER_NAME_KEY = "av_player_name";
+
+export function getPlayerName(): string | null {
+  try {
+    return localStorage.getItem(PLAYER_NAME_KEY);
+  } catch {
+    // localStorage no disponible: no hay nombre recordado.
+    return null;
+  }
+}
+
+export function setPlayerName(name: string): void {
+  try {
+    localStorage.setItem(PLAYER_NAME_KEY, name);
+  } catch {
+    // localStorage no disponible: el nombre no se recuerda para la próxima partida.
+  }
+}
 
 // Filas de `scores` ya ordenadas por score DESC → filas de UI con rank y fecha.
 // Pura: la usan la versión servidor (scores.server.ts) y la de browser.
@@ -85,16 +102,14 @@ export async function getTopPlayers(): Promise<TopPlayer[]> {
   return TOP_PLAYERS;
 }
 
-export async function saveScore(
-  entry: Omit<SavedScore, "at">,
-): Promise<void> {
-  try {
-    const all: SavedScore[] = JSON.parse(
-      localStorage.getItem(SCORES_KEY) || "[]",
-    );
-    all.push({ ...entry, at: Date.now() });
-    localStorage.setItem(SCORES_KEY, JSON.stringify(all));
-  } catch {
-    // localStorage no disponible o JSON corrupto: la app sigue sin persistir.
-  }
+// Inserta el score en Supabase desde el browser. user_id es null hasta el spec de Auth.
+export async function saveScore(entry: NewScore): Promise<void> {
+  const supabase = createClient();
+  const { error } = await supabase.from("scores").insert({
+    game_id: entry.game,
+    player_name: entry.name,
+    score: entry.score,
+    user_id: null,
+  });
+  if (error) throw new Error(`No se pudo guardar la puntuación: ${error.message}`);
 }

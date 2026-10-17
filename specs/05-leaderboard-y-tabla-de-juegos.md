@@ -51,7 +51,12 @@
   retira de `hall-of-fame.tsx` sin reemplazo en el paso 6.
 - Los 8 juegos simulados (`rocas`, `bloque-buster`, `caida`, etc.) desaparecen de la UI
   al eliminar el array local; no se migran a Supabase en este spec. `GamePlayer` y
-  `app/games/[id]/jugar/` quedan sin uso y no se tocan.
+  `app/games/[id]/jugar/` se eliminan, porque dejaron de compilar al quitar los datos
+  locales y no tienen juegos que reproducir.
+- 404 real en `/games/[id]` para ids inexistentes — con `cacheComponents`, el shell PPR
+  se envía con 200 antes de `notFound()`, y `dynamicParams` no es compatible. Se acepta
+  el soft 404 con `noindex`. Pendiente para el spec de Auth: evaluar un 404 real cuando
+  exista `proxy.ts`.
 - La landing (`getRecentScores`, `getTopPlayers`) y los datos mock de `plays`/`best`
   en tarjetas: se ajustan solo lo mínimo para compilar con el nuevo tipo `Game`.
 
@@ -164,11 +169,11 @@ antes del paso 6 (estados vacíos), según `CLAUDE.md`.
    resultado. Si el juego no existe → `notFound()`. Quitar `generateStaticParams`
    (ya no aplica: `getGames()` usa `cookies()` y no puede correr en build) y declarar
    `export const instant = false` en la página. El juego se lee fuera de `<Suspense>`
-   para que `notFound()` devuelva un 404 real; solo el top 10 va en `<Suspense>`.
+   antes de `notFound()`; solo el top 10 va en `<Suspense>`.
    Quitar la celda "Partidas" de `GameDetail` (no existe `plays`) y mostrar "—" en
    "Mejor global" si no hay scores.
-   Verificación: `/games/asteroids` carga con los datos reales; un id inválido
-   devuelve 404.
+   Verificación (con `npm run build` + `next start`): `/games/asteroids` carga con los
+   datos reales; un id inválido muestra la página de no encontrado con `noindex`.
 
 6. **Migrar `app/salon/page.tsx`** — lectura de todos los juegos para construir los
    tabs; top 12 scores del juego activo, y al cambiar de tab se vuelve a pedir
@@ -203,7 +208,7 @@ antes del paso 6 (estados vacíos), según `CLAUDE.md`.
 - [ ] El array `GAMES` local y la función `seededScores` han sido eliminados del codebase.
 - [ ] `/games` carga y muestra únicamente los juegos presentes en Supabase (solo Asteroids).
 - [ ] `/games/asteroids` muestra los datos reales del juego y el leaderboard top 10.
-- [ ] `/games/[id]` con un id inexistente devuelve 404.
+- [ ] `/games/[id]` con un id inexistente muestra la página de no encontrado con `noindex`.
 - [ ] `/salon` muestra únicamente tabs de juegos presentes en Supabase.
 - [ ] Cuando no hay scores, los leaderboards muestran el mensaje de estado vacío
       en lugar de datos falsos.
@@ -255,10 +260,17 @@ antes del paso 6 (estados vacíos), según `CLAUDE.md`.
 - **Sí: `export const instant = false` en `app/games/[id]/page.tsx`** — la ruta se
   declara "puede bloquear" (API de segmento estable desde Next 16.3; no cambia el
   modelo de renderizado). Razón: con la lectura del juego dentro de `<Suspense>` el
-  estado HTTP ya se envió como 200 al ejecutarse `notFound()` (soft 404); leyéndolo
-  antes del streaming se devuelve 404. Al quitar `generateStaticParams`, Next también
-  intentaba prerenderizar la ruta y fallaba por `usePathname()` de `Nav` fuera de
-  `<Suspense>`; `instant = false` lo resuelve.
+  estado HTTP ya se envió como 200 al ejecutarse `notFound()` (soft 404). Al quitar
+  `generateStaticParams`, Next también intentaba prerenderizar la ruta y fallaba por
+  `usePathname()` de `Nav` fuera de `<Suspense>`; `instant = false` resuelve ese error.
+  **Corrección:** `instant = false` solo da 404 en `next dev`. En producción la ruta se
+  sirve como shell PPR prerenderizado (`x-nextjs-postponed: 1`) y el estado ya es 200
+  cuando corre `notFound()`, así que por sí solo no cumple el criterio del 404.
+
+- **Sí: Aceptar el soft 404 con `noindex` en `/games/[id]`** — con `cacheComponents`, el
+  shell PPR se envía con 200 antes de `notFound()`, y `dynamicParams` no es compatible.
+  Se acepta el soft 404 con `noindex`, que es el comportamiento documentado por Next.
+  El 404 real se evalúa en el spec de Auth, cuando exista `proxy.ts`.
 
 - **Sí: Quitar la celda "Partidas" de `GameDetail`** — `plays` no existe como columna
   y el conteo de partidas queda fuera de alcance. "Mejor global" se calcula del

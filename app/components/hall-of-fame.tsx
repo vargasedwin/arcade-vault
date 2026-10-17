@@ -1,126 +1,165 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useRef, useState } from "react";
 import type { Game } from "@/app/data/games";
-import { getUserBest, type ScoreRow } from "@/app/data/scores";
-import { useSession } from "./session-provider";
+import { getLeaderboard, type LeaderboardRow } from "@/app/data/scores";
+import { EmptyScores } from "./empty-scores";
 
 const TOP_CLASS = ["top1", "top2", "top3"];
+const LIMIT = 12;
+
+function Header() {
+  return (
+    <div className="hall-head">
+      <h1>SALÓN DE LA FAMA</h1>
+      <p className="pixel text-[10px]">
+        LOS NOMBRES QUE NUNCA SE BORRAN DE LA PANTALLA
+      </p>
+    </div>
+  );
+}
 
 export function HallOfFame({
   games,
-  boards,
+  initialBoard,
 }: {
   games: Game[];
-  boards: Record<string, ScoreRow[]>;
+  initialBoard: LeaderboardRow[];
 }) {
-  const [tab, setTab] = useState(games[0].id);
-  const [best, setBest] = useState<{ key: string; row: ScoreRow } | null>(null);
-  const { user } = useSession();
+  const first = games[0];
+  const [tab, setTab] = useState(first?.id);
+  const [boards, setBoards] = useState<Record<string, LeaderboardRow[]>>(
+    first ? { [first.id]: initialBoard } : {},
+  );
+  const [failed, setFailed] = useState(false);
+  // Descarta respuestas de un tab que ya no es el activo.
+  const lastRequest = useRef(0);
 
-  const rows = boards[tab];
-  const game = games.find((g) => g.id === tab)!;
-  const userName = user?.name;
+  if (!first) {
+    return (
+      <div className="av-hall fade-in">
+        <Header />
+        <EmptyScores />
+      </div>
+    );
+  }
 
-  useEffect(() => {
-    if (!userName) return;
-    let active = true;
-    getUserBest(tab, { name: userName }).then((row) => {
-      if (active && row) setBest({ key: `${userName}:${tab}`, row });
-    });
-    return () => {
-      active = false;
-    };
-  }, [tab, userName]);
+  const selectTab = (id: string) => {
+    setTab(id);
+    setFailed(false);
+    const request = ++lastRequest.current;
+    getLeaderboard(id, LIMIT)
+      .then((rows) => {
+        if (request === lastRequest.current) {
+          setBoards((prev) => ({ ...prev, [id]: rows }));
+        }
+      })
+      .catch(() => {
+        if (request === lastRequest.current) setFailed(true);
+      });
+  };
 
-  const you = userName && best?.key === `${userName}:${tab}` ? best.row : null;
+  const game = games.find((g) => g.id === tab) ?? first;
+  const rows = boards[game.id];
+  const [gold, silver, bronze] = rows ?? [];
 
   return (
     <div className="av-hall fade-in">
-      <div className="hall-head">
-        <h1>SALÓN DE LA FAMA</h1>
-        <p className="pixel text-[10px]">
-          LOS NOMBRES QUE NUNCA SE BORRAN DE LA PANTALLA
-        </p>
-      </div>
+      <Header />
 
       <div className="hall-tabs">
         {games.map((g) => (
           <button
             key={g.id}
-            className={"chip" + (tab === g.id ? " active" : "")}
-            onClick={() => setTab(g.id)}
+            className={"chip" + (game.id === g.id ? " active" : "")}
+            onClick={() => selectTab(g.id)}
           >
             {g.title}
           </button>
         ))}
       </div>
 
-      <div className="podium">
-        <div className="podium-slot silver">
-          <div className="rank-num">02</div>
-          <div className="name">{rows[1].name}</div>
-          <div className="score">{rows[1].score.toLocaleString("es-ES")}</div>
-          <div className="date">{rows[1].date}</div>
-        </div>
-        <div className="podium-slot gold">
-          <div className="pixel text-[9px] tracking-[0.18em] text-(--gold)">
-            CAMPEÓN
-          </div>
-          <div className="rank-num mt-1 text-[36px]">01</div>
-          <div className="name">{rows[0].name}</div>
-          <div className="score text-[20px]">
-            {rows[0].score.toLocaleString("es-ES")}
-          </div>
-          <div className="date">{rows[0].date}</div>
-        </div>
-        <div className="podium-slot bronze">
-          <div className="rank-num">03</div>
-          <div className="name">{rows[2].name}</div>
-          <div className="score">{rows[2].score.toLocaleString("es-ES")}</div>
-          <div className="date">{rows[2].date}</div>
-        </div>
-      </div>
-
-      <div className="hall-table">
-        <div className="th">
-          <div>RANGO</div>
-          <div>JUGADOR</div>
-          <div>PUNTUACIÓN</div>
-          <div>FECHA</div>
-        </div>
-        {rows.map((r, i) => (
-          <div
-            key={r.name + i}
-            className={"tr" + (TOP_CLASS[i] ? " " + TOP_CLASS[i] : "")}
-            style={{ animationDelay: `${i * 50}ms` }}
-          >
-            <div className="rk">#{String(r.rank).padStart(2, "0")}</div>
-            <div className="pl">{r.name}</div>
-            <div className="sc">{r.score.toLocaleString("es-ES")}</div>
-            <div className="dt">{r.date}</div>
-          </div>
-        ))}
-        {you && (
-          <>
-            <div className="tr you-label">▸ TU MEJOR MARCA EN {game.title}</div>
-            <div
-              className="tr you"
-              style={{ animationDelay: `${rows.length * 50 + 50}ms` }}
-            >
-              <div className="rk text-(--yellow)">
-                #{String(you.rank).padStart(2, "0")}
+      {!rows ? (
+        <div className="p-16 text-center text-(--ink-faint)" role="status">
+          {failed ? (
+            <>
+              <div className="pixel mb-3 text-sm text-(--magenta)">
+                NO SE PUDO CARGAR
               </div>
-              <div className="pl text-(--yellow)">{you.name}</div>
-              <div className="sc text-(--yellow) [text-shadow:0_0_6px_rgba(245,255,0,0.5)]">
-                {you.score.toLocaleString("es-ES")}
+              <div>Vuelve a pulsar {game.title} para reintentarlo.</div>
+            </>
+          ) : (
+            <div className="pixel text-sm text-(--cyan)">CARGANDO…</div>
+          )}
+        </div>
+      ) : rows.length === 0 ? (
+        <div className="hall-table">
+          <EmptyScores
+            gameTitle={game.title}
+            play={{ href: `/games/${game.id}/jugar`, label: `JUGAR ${game.title}` }}
+          />
+        </div>
+      ) : (
+        <>
+          {/* Cada puesto conserva su columna: con menos de 3 filas el campeón
+              sigue centrado y los puestos vacíos no se dibujan. */}
+          <div className="podium">
+            {silver ? (
+              <div className="podium-slot silver">
+                <div className="rank-num">02</div>
+                <div className="name">{silver.name}</div>
+                <div className="score">{silver.score.toLocaleString("es-ES")}</div>
+                <div className="date">{silver.date}</div>
               </div>
-              <div className="dt">{you.date}</div>
+            ) : (
+              <div aria-hidden className="max-[720px]:hidden" />
+            )}
+            <div className="podium-slot gold">
+              <div className="pixel text-[9px] tracking-[0.18em] text-(--gold)">
+                CAMPEÓN
+              </div>
+              <div className="rank-num mt-1 text-[36px]">01</div>
+              <div className="name">{gold.name}</div>
+              <div className="score text-[20px]">
+                {gold.score.toLocaleString("es-ES")}
+              </div>
+              <div className="date">{gold.date}</div>
             </div>
-          </>
-        )}
-      </div>
+            {bronze ? (
+              <div className="podium-slot bronze">
+                <div className="rank-num">03</div>
+                <div className="name">{bronze.name}</div>
+                <div className="score">{bronze.score.toLocaleString("es-ES")}</div>
+                <div className="date">{bronze.date}</div>
+              </div>
+            ) : (
+              <div aria-hidden className="max-[720px]:hidden" />
+            )}
+          </div>
+
+          <div className="hall-table">
+            <div className="th">
+              <div>RANGO</div>
+              <div>JUGADOR</div>
+              <div>PUNTUACIÓN</div>
+              <div>FECHA</div>
+            </div>
+            {rows.map((r, i) => (
+              <div
+                key={`${game.id}-${r.rank}`}
+                className={"tr" + (TOP_CLASS[i] ? " " + TOP_CLASS[i] : "")}
+                style={{ animationDelay: `${i * 50}ms` }}
+              >
+                <div className="rk">#{String(r.rank).padStart(2, "0")}</div>
+                <div className="pl">{r.name}</div>
+                <div className="sc">{r.score.toLocaleString("es-ES")}</div>
+                <div className="dt">{r.date}</div>
+              </div>
+            ))}
+          </div>
+        </>
+      )}
 
       <div className="mt-8 text-center">
         <Link href="/games" className="btn lg">

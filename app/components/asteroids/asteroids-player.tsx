@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useEffect, useRef, useState, type MouseEvent } from "react";
 import type { Game } from "@/app/data/games";
-import { saveScore } from "@/app/data/scores";
+import { getPlayerName, saveScore, setPlayerName } from "@/app/data/scores";
 import { useSession } from "../session-provider";
 import {
   createAsteroids,
@@ -23,10 +23,13 @@ export function AsteroidsPlayer({ game }: { game: Game }) {
   const [finalScore, setFinalScore] = useState(0);
   const [nameOverride, setNameOverride] = useState<string | null>(null);
   const [saved, setSaved] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [saveError, setSaveError] = useState(false);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const engineRef = useRef<AsteroidsHandle | null>(null);
 
-  // La sesión llega tras montar; mientras el usuario no edite, se muestra su nombre.
+  // Prioridad: lo que el usuario escribió o el nombre recordado del leaderboard,
+  // luego el nick de sesión (llega tras montar) y por último INVITADO.
   const name = nameOverride ?? user?.name ?? "INVITADO";
 
   useEffect(() => {
@@ -37,6 +40,9 @@ export function AsteroidsPlayer({ game }: { game: Game }) {
       onGameOver: (score) => {
         setFinalScore(score);
         setPaused(false);
+        // Pre-rellena el nombre recordado, sin pisar lo ya escrito en esta sesión.
+        const remembered = getPlayerName();
+        if (remembered) setNameOverride((current) => current ?? remembered);
         setOver(true);
       },
     });
@@ -63,11 +69,23 @@ export function AsteroidsPlayer({ game }: { game: Game }) {
     engineRef.current?.restart();
     setOver(false);
     setSaved(false);
+    setSaveError(false);
   };
 
   const save = async () => {
-    await saveScore({ game: game.id, score: finalScore, name });
-    setSaved(true);
+    if (saving || saved) return;
+    const player = name.trim() || "INVITADO";
+    setSaving(true);
+    setSaveError(false);
+    try {
+      await saveScore({ game: game.id, score: finalScore, name: player });
+      setPlayerName(player);
+      setSaved(true);
+    } catch {
+      setSaveError(true);
+    } finally {
+      setSaving(false);
+    }
   };
 
   return (
@@ -156,12 +174,17 @@ export function AsteroidsPlayer({ game }: { game: Game }) {
                   }
                   placeholder="TUS INICIALES"
                 />
-                <button className="btn yellow" onClick={save}>
-                  GUARDAR PUNTUACIÓN
+                <button className="btn yellow" onClick={save} disabled={saving}>
+                  {saving ? "GUARDANDO…" : "GUARDAR PUNTUACIÓN"}
                 </button>
               </div>
             ) : (
               <div className="toast-saved">▸ PUNTUACIÓN GUARDADA_</div>
+            )}
+            {saveError && (
+              <div role="alert" className="mono mt-2 text-[11px] text-(--magenta)">
+                No se pudo guardar la puntuación. Inténtalo de nuevo.
+              </div>
             )}
             <div className="actions">
               <button className="btn" onClick={restart}>

@@ -1,15 +1,18 @@
 import Link from "next/link";
 import type { Game } from "@/app/data/games";
-import type { ScoreRow } from "@/app/data/scores";
+import type { LeaderboardRow } from "@/app/data/scores";
+import { EmptyScores } from "./empty-scores";
 
 const TOP_CLASS = ["top1", "top2", "top3"];
 
 export function GameDetail({
   game,
   scores,
+  best,
 }: {
   game: Game;
-  scores: ScoreRow[];
+  scores: LeaderboardRow[];
+  best: number | null;
 }) {
   return (
     <div className="av-detail fade-in">
@@ -28,13 +31,9 @@ export function GameDetail({
           <p>{game.long}</p>
           <div className="stat-strip">
             <div>
-              <div className="l">Partidas</div>
-              <div className="v">{game.plays}</div>
-            </div>
-            <div>
               <div className="l">Mejor global</div>
               <div className="v text-(--magenta) [text-shadow:0_0_6px_rgba(255,0,110,0.5)]">
-                {game.best.toLocaleString("es-ES")}
+                {best === null ? "—" : best.toLocaleString("es-ES")}
               </div>
             </div>
             <div>
@@ -58,8 +57,9 @@ export function GameDetail({
       <aside>
         <div className="leaderboard">
           <h3>MEJORES PUNTUACIONES</h3>
+          {scores.length === 0 && <EmptyScores gameTitle={game.title} />}
           {scores.map((r, i) => (
-            <div key={r.name} className={"lb-row" + (TOP_CLASS[i] ? " " + TOP_CLASS[i] : "")}>
+            <div key={r.rank} className={"lb-row" + (TOP_CLASS[i] ? " " + TOP_CLASS[i] : "")}>
               <div className="rk">#{String(r.rank).padStart(2, "0")}</div>
               <div className="pl">
                 {r.name}

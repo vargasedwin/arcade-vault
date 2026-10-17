@@ -1,6 +1,6 @@
 import Link from "next/link";
 import type { Game } from "@/app/data/games";
-import type { ScoreRow } from "@/app/data/scores";
+import type { LeaderboardRow } from "@/app/data/scores";
 
 const TOP_CLASS = ["top1", "top2", "top3"];
 
@@ -9,7 +9,7 @@ export function GameDetail({
   scores,
 }: {
   game: Game;
-  scores: ScoreRow[];
+  scores: LeaderboardRow[];
 }) {
   return (
     <div className="av-detail fade-in">

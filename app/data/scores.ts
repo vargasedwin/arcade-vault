@@ -1,5 +1,8 @@
 import type { NeonColor } from "./games";
-import type { User } from "./session";
+import { createClient } from "./supabase/client";
+import type { Database } from "./supabase/database.types";
+
+export type ScoreRow = Database["public"]["Tables"]["scores"]["Row"];
 
 export type RecentScore = {
   player: string;
@@ -13,7 +16,7 @@ export type TopPlayer = {
   player: string;
   score: number;
 };
-export type ScoreRow = {
+export type LeaderboardRow = {
   rank: number;
   name: string;
   score: number;
@@ -28,65 +31,31 @@ export type SavedScore = {
 
 const SCORES_KEY = "av_scores";
 
-const PLAYERS = [
-  "PX_KAI", "NEONFOX", "Z3R0COOL", "M00NRYU", "VAULT_07", "GLITCHA",
-  "ATARI_KID", "CYBER_LU", "MAGENTA88", "SCANLINE", "BIT_LORD", "ARKADYA",
-  "DROID_X", "RGB_QUEEN", "PIXEL_DAD", "RETROVIRA", "VECTORX", "JOY_STK",
-];
-
-export function seededScores(seed: number, count = 12): ScoreRow[] {
-  let s = seed;
-  const rand = () => (s = (s * 9301 + 49297) % 233280) / 233280;
-  const used = new Set<string>();
-  const rows: ScoreRow[] = [];
-  for (let i = 0; i < count; i++) {
-    let name: string;
-    do {
-      name = PLAYERS[Math.floor(rand() * PLAYERS.length)];
-    } while (used.has(name) && used.size < PLAYERS.length);
-    used.add(name);
-    const base = Math.floor(50000 + rand() * 250000);
-    const score = base - i * Math.floor(2000 + rand() * 4000);
-    const day = String(1 + Math.floor(rand() * 28)).padStart(2, "0");
-    const mon = String(1 + Math.floor(rand() * 12)).padStart(2, "0");
-    rows.push({
-      rank: i + 1,
-      name,
-      score: Math.max(score, 1000),
-      date: `${day}/${mon}/2026`,
-    });
-  }
-  return rows
-    .sort((a, b) => b.score - a.score)
-    .map((r, i) => ({ ...r, rank: i + 1 }));
+// Filas de `scores` ya ordenadas por score DESC → filas de UI con rank y fecha.
+// Pura: la usan la versión servidor (scores.server.ts) y la de browser.
+export function toLeaderboardRows(rows: ScoreRow[]): LeaderboardRow[] {
+  return rows.map((r, i) => {
+    const [y, m, d] = r.created_at.slice(0, 10).split("-");
+    return { rank: i + 1, name: r.player_name, score: r.score, date: `${d}/${m}/${y}` };
+  });
 }
 
-// Semillas del prototipo: detalle (10 filas) y salón (12 filas).
-const DETAIL_LIMIT = 10;
-
-function seedFor(gameId: string, limit: number): number {
-  return limit === DETAIL_LIMIT ? gameId.length * 17 + 3 : gameId.length * 23 + 7;
-}
-
+// Versión browser, para recargar el leaderboard al cambiar de tab en el salón.
 export async function getLeaderboard(
   gameId: string,
   limit: number,
-): Promise<ScoreRow[]> {
-  return seededScores(seedFor(gameId, limit), limit);
-}
-
-// Marca simulada del usuario en el salón, igual que el prototipo.
-export async function getUserBest(
-  gameId: string,
-  user: User,
-): Promise<ScoreRow | null> {
-  const rows = seededScores(gameId.length * 23 + 7, 12);
-  return {
-    rank: 8 + (gameId.length % 4),
-    name: user.name,
-    score: rows[5] ? rows[5].score - 2400 : 9999,
-    date: "11/05/2026",
-  };
+): Promise<LeaderboardRow[]> {
+  const supabase = createClient();
+  const { data, error } = await supabase
+    .from("scores")
+    .select("*")
+    .eq("game_id", gameId)
+    .order("score", { ascending: false })
+    .limit(limit);
+  if (error) {
+    throw new Error(`No se pudo leer el leaderboard de ${gameId}: ${error.message}`);
+  }
+  return toLeaderboardRows(data);
 }
 
 // Actividad de la landing: valores fijos del prototipo (home.jsx).

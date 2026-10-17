@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import type { Game } from "@/app/data/games";
-import { getUserBest, type ScoreRow } from "@/app/data/scores";
+import { getUserBest, type LeaderboardRow } from "@/app/data/scores";
 import { useSession } from "./session-provider";
 
 const TOP_CLASS = ["top1", "top2", "top3"];
@@ -13,10 +13,10 @@ export function HallOfFame({
   boards,
 }: {
   games: Game[];
-  boards: Record<string, ScoreRow[]>;
+  boards: Record<string, LeaderboardRow[]>;
 }) {
   const [tab, setTab] = useState(games[0].id);
-  const [best, setBest] = useState<{ key: string; row: ScoreRow } | null>(null);
+  const [best, setBest] = useState<{ key: string; row: LeaderboardRow } | null>(null);
   const { user } = useSession();
 
   const rows = boards[tab];

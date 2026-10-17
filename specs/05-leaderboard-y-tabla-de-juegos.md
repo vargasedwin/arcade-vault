@@ -47,6 +47,8 @@
   columnas; el `best` se calcula en tiempo de consulta desde `scores`.
 - Realtime — los leaderboards no se actualizan en vivo; solo al cargar la página.
 - Paginación del leaderboard — se muestran los top 10 fijos (top 12 en el salón).
+- Mejor score del usuario en el salón — requiere Auth. `getUserBest` se elimina y se
+  retira de `hall-of-fame.tsx` sin reemplazo en el paso 6.
 - Los 8 juegos simulados (`rocas`, `bloque-buster`, `caida`, etc.) desaparecen de la UI
   al eliminar el array local; no se migran a Supabase en este spec. `GamePlayer` y
   `app/games/[id]/jugar/` quedan sin uso y no se tocan.
@@ -138,9 +140,16 @@ antes del paso 6 (estados vacíos), según `CLAUDE.md`.
    Verificación: `npx tsc --noEmit` no reporta errores en los tipos nuevos.
 
 3. **Eliminar datos locales** — en `app/data/games.ts` borrar el array `GAMES`;
-   en `app/data/scores.ts` borrar `seededScores`. Añadir `getGames()` y
-   `getGame(id)` (cliente `server.ts`) y `getLeaderboard(gameId, limit)` (lectura
-   de `scores`, `score DESC`) como helpers de `app/data/`.
+   en `app/data/scores.ts` borrar `seededScores` y `getUserBest`. Separar los helpers
+   por entorno dentro de `app/data/`, porque `server.ts` importa `next/headers` y
+   `games.ts`/`scores.ts` los importan Client Components:
+   - `games.ts` y `scores.ts` quedan client-safe (tipos, `CATS`, `localStorage`,
+     cliente browser). `scores.ts` expone la función pura `toLeaderboardRows`
+     (`ScoreRow[]` → `LeaderboardRow[]`, con rank y fecha) y `getLeaderboard`
+     versión browser (cliente `client.ts`).
+   - `games.server.ts` expone `getGames()` y `getGame(id)`; `scores.server.ts`
+     expone `getLeaderboard(gameId, limit)` versión servidor (`score DESC`). Ambos
+     usan el cliente `server.ts` e `import "server-only"` (dependencia `server-only`).
    Verificación: `npm run build` falla únicamente en los archivos que consumen
    los símbolos eliminados (esperado — se arreglan en los pasos siguientes).
 
@@ -238,6 +247,19 @@ antes del paso 6 (estados vacíos), según `CLAUDE.md`.
 - **Sí: Acceso a Supabase y `localStorage` solo desde `app/data/`** — los
   componentes reciben datos por props o llaman helpers. Razón: regla vigente de
   SPEC 03/04.
+
+- **Sí: Separar `.ts` (client-safe) de `.server.ts` (solo servidor) en `app/data/`** —
+  `games.server.ts` y `scores.server.ts` usan el cliente `server.ts` con
+  `import "server-only"`; `games.ts` y `scores.ts` solo importan el cliente browser.
+  Razón: `server.ts` importa `next/headers`, y Client Components como `library.tsx` o
+  `asteroids-player.tsx` importan `games.ts` y `scores.ts`; mezclarlos rompería el
+  build. La conversión `ScoreRow` → `LeaderboardRow` vive en una función pura en
+  `scores.ts` para no duplicarla entre las versiones servidor y browser.
+
+- **Sí: Mantener RLS con políticas permisivas** — RLS viene activo por defecto en el
+  proyecto; se mantienen RLS y políticas permisivas (select en ambas tablas, insert en
+  scores) en lugar de deshabilitarlo, para no exponer update/delete. Se endurece en el
+  spec de seguridad.
 
 - **No: RLS en este spec** — las tablas quedan abiertas (INSERT y SELECT públicos).
   Razón: RLS requiere definir roles y políticas; hacerlo bien merece su propio spec.

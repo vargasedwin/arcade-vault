@@ -1,6 +1,6 @@
 # SPEC 06 — Juego Tetris
 
-> **Estado:** Borrador
+> **Estado:** Aprobado
 > **Depende de:** 04-juego-asteroids, 05-leaderboard-y-tabla-de-juegos
 > **Fecha:** 2026-10-17
 > **Objetivo:** Portar el Tetris de `references/started-games/03-tetris/` como segundo juego real del catálogo (`/games/tetris`), con su propio reproductor en `/games/tetris/jugar` y su leaderboard conectado a Supabase.

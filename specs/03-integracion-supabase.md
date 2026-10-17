@@ -1,6 +1,6 @@
 # SPEC 03 — Integración base de Supabase en la app Next.js
 
-> **Status:** Draft
+> **Status:** Aprobado
 > **Depends on:** SPEC 01, SPEC 02
 > **Date:** 2026-10-17
 > **Objective:** Conectar la app Next.js al proyecto Supabase existente con clientes de navegador y servidor tipados en `app/data/supabase/`, variables de entorno y carpeta de migraciones, sin crear tablas ni cambiar ninguna pantalla.

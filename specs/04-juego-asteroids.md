@@ -1,6 +1,6 @@
 # SPEC 04 — Primer juego jugable: Asteroids
 
-> **Status:** Aprobado
+> **Status:** Implementado
 > **Depends on:** SPEC 01, SPEC 02
 > **Date:** 2026-10-17
 > **Objective:** Portar el juego Asteroids de `references/started-games/02-asteroids/` a un juego nuevo del catálogo (`/games/asteroids`) con su propio reproductor en `/games/asteroids/jugar`, donde el canvas conserva su HUD y sus controles, y avisa a React del puntaje, las vidas, el nivel y el game over.
@@ -122,30 +122,30 @@ Cada paso deja la app ejecutable y es commiteable por separado.
 
 ## Criterios de aceptación
 
-- [ ] `npm run lint`, `npx tsc --noEmit` y `npm run build` terminan sin errores.
-- [ ] `/games` muestra 9 juegos; ASTEROIDS aparece con categoría SHOOTER, color cian y la portada `cover-asteroids`; la landing `/` sigue mostrando los mismos 6 juegos del riel.
-- [ ] `/games/asteroids` muestra el detalle con 10 filas de leaderboard y el botón "JUGAR" navega a `/games/asteroids/jugar`.
-- [ ] `/games/rocas` y `/games/rocas/jugar` se comportan igual que antes (reproductor simulado) y `game-player.tsx` no tiene cambios en el diff.
-- [ ] Al abrir `/games/asteroids/jugar` aparece el canvas de 800×600 con la nave en el centro, 4 asteroides grandes fuera de un radio de 130 px del centro y el HUD del canvas (`SCORE 0`, `NIVEL 1`, 3 iconos de vida).
-- [ ] El HUD de React muestra jugador, puntuación 0, 3 vidas y nivel 01, y coincide en todo momento con el HUD del canvas.
-- [ ] `←` `→` rotan la nave, `↑` propulsa y `Espacio` dispara (cadencia máxima de una bala cada 0,2 s).
-- [ ] Con el juego activo, `←` `→` `↑` `Espacio` no hacen scroll de la página.
-- [ ] Destruir un asteroide grande suma 20, uno mediano 50 y uno pequeño 100, y la puntuación de React se actualiza.
-- [ ] Un choque con un asteroide (fuera de invencibilidad) baja las vidas de 3 a 2 en ambos HUD; la nave reaparece a los 2 s en el centro, parpadeando 3 s.
+- [x] `npm run lint`, `npx tsc --noEmit` y `npm run build` terminan sin errores.
+- [x] `/games` muestra 9 juegos; ASTEROIDS aparece con categoría SHOOTER, color cian y la portada `cover-asteroids`; la landing `/` sigue mostrando los mismos 6 juegos del riel.
+- [x] `/games/asteroids` muestra el detalle con 10 filas de leaderboard y el botón "JUGAR" navega a `/games/asteroids/jugar`.
+- [x] `/games/rocas` y `/games/rocas/jugar` se comportan igual que antes (reproductor simulado) y `game-player.tsx` no tiene cambios en el diff.
+- [x] Al abrir `/games/asteroids/jugar` aparece el canvas de 800×600 con la nave en el centro, 4 asteroides grandes fuera de un radio de 130 px del centro y el HUD del canvas (`SCORE 0`, `NIVEL 1`, 3 iconos de vida).
+- [x] El HUD de React muestra jugador, puntuación 0, 3 vidas y nivel 01, y coincide en todo momento con el HUD del canvas.
+- [x] `←` `→` rotan la nave, `↑` propulsa y `Espacio` dispara (cadencia máxima de una bala cada 0,2 s).
+- [x] Con el juego activo, `←` `→` `↑` `Espacio` no hacen scroll de la página.
+- [x] Destruir un asteroide grande suma 20, uno mediano 50 y uno pequeño 100, y la puntuación de React se actualiza.
+- [x] Un choque con un asteroide (fuera de invencibilidad) baja las vidas de 3 a 2 en ambos HUD; la nave reaparece a los 2 s en el centro, parpadeando 3 s.
 - [ ] Al destruir todos los asteroides el nivel pasa a 2 en ambos HUD y aparecen 5 asteroides grandes.
-- [ ] PAUSA detiene el movimiento de nave, balas y asteroides, muestra "EN PAUSA" (de React) y cambia el botón a REANUDAR; REANUDAR continúa sin saltos de posición.
-- [ ] Al perder la tercera vida el canvas muestra `GAME OVER` con `PUNTAJE: n` y se abre el modal de React con la misma puntuación final.
-- [ ] El botón FIN termina la partida y abre el modal igual que un game over.
-- [ ] Con el modal abierto, `Espacio` fuera del campo de iniciales no reinicia el juego; dentro del campo se pueden escribir espacios; el campo limita a 10 caracteres en mayúsculas.
-- [ ] GUARDAR PUNTUACIÓN muestra "▸ PUNTUACIÓN GUARDADA_" y deja en `av_scores` una entrada con `game: "asteroids"`, el puntaje final y el nombre.
-- [ ] JUGAR DE NUEVO cierra el modal y deja puntuación 0, 3 vidas, nivel 1 y un campo de asteroides nuevo.
-- [ ] SALIR navega a `/games/asteroids` y VOLVER AL VAULT a `/games`.
+- [x] PAUSA detiene el movimiento de nave, balas y asteroides, muestra "EN PAUSA" (de React) y cambia el botón a REANUDAR; REANUDAR continúa sin saltos de posición.
+- [x] Al perder la tercera vida el canvas muestra `GAME OVER` con `PUNTAJE: n` y se abre el modal de React con la misma puntuación final.
+- [x] El botón FIN termina la partida y abre el modal igual que un game over.
+- [x] Con el modal abierto, `Espacio` fuera del campo de iniciales no reinicia el juego; dentro del campo se pueden escribir espacios; el campo limita a 10 caracteres en mayúsculas.
+- [x] GUARDAR PUNTUACIÓN muestra "▸ PUNTUACIÓN GUARDADA_" y deja en `av_scores` una entrada con `game: "asteroids"`, el puntaje final y el nombre.
+- [x] JUGAR DE NUEVO cierra el modal y deja puntuación 0, 3 vidas, nivel 1 y un campo de asteroides nuevo.
+- [x] SALIR navega a `/games/asteroids` y VOLVER AL VAULT a `/games`.
 - [ ] Tras salir y volver a entrar a `/games/asteroids/jugar` (y en `npm run dev` con Strict Mode), una pulsación de `Espacio` dispara una sola bala y la nave se mueve a velocidad normal: no quedan loops ni listeners duplicados.
-- [ ] `asteroids-engine.ts` no usa `document.getElementById` ni variables de módulo mutables, y cada `addEventListener` tiene su `removeEventListener` en `destroy()`.
-- [ ] Ningún archivo bajo `app/components/` accede a `localStorage`; solo lo hace `app/data/`.
+- [x] `asteroids-engine.ts` no usa `document.getElementById` ni variables de módulo mutables, y cada `addEventListener` tiene su `removeEventListener` en `destroy()`.
+- [x] Ningún archivo bajo `app/components/` accede a `localStorage`; solo lo hace `app/data/`.
 - [ ] La consola del navegador no muestra errores ni warnings de React durante una partida completa.
-- [ ] El canvas se ve completo y sin deformar a 1440×900 y a 390×844.
-- [ ] `CLAUDE.md` documenta el patrón de juego aislado.
+- [x] El canvas se ve completo y sin deformar a 1440×900 y a 390×844.
+- [x] `CLAUDE.md` documenta el patrón de juego aislado.
 
 ---
 

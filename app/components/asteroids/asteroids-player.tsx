@@ -71,7 +71,12 @@ export function AsteroidsPlayer({ game }: { game: Game }) {
   };
 
   return (
-    <div className="av-player fade-in">
+    // El canvas (4:3) no debe superar el alto visible: en juego no se puede hacer scroll.
+    // 300px = nav + HUD + marco CRT; 96px = padding del reproductor + marco del CRT.
+    <div
+      className="av-player fade-in"
+      style={{ maxWidth: "min(1100px, max(408px, calc((100svh - 300px) * 4 / 3 + 96px)))" }}
+    >
       <div className="player-hud">
         <div className="flex flex-wrap gap-6">
           <div className="hud-stat">

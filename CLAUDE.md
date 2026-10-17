@@ -27,6 +27,17 @@ The app is wired to an existing Supabase project (`https://ydpynaeesipudonboqbr.
 - **Schema changes**: apply them as migrations and keep every `.sql` in `supabase/migrations/`. After each migration, regenerate `app/data/supabase/database.types.ts` with the MCP `generate_typescript_types`.
 - Session refresh (`proxy.ts`) arrives with the auth spec.
 
+## Games
+
+Each real game is isolated (SPEC 04). Only `asteroids` is real; the other 8 catalog games (including `rocas`, which is **not** Asteroids) still use the simulated generic player `app/components/game-player.tsx` via `app/games/[id]/jugar/`.
+
+- **Static route per game**: `app/games/<id>/jugar/page.tsx` takes precedence over `[id]/jugar` and renders the game's own player. Don't touch `GamePlayer` or `[id]/jugar` to add a game, and don't build a shared engine until several real games exist.
+- **Engine + player** live in `app/components/<id>/`: `<id>-engine.ts` (plain TS, canvas only) and `<id>-player.tsx` (Client Component with the React HUD, pause/FIN/SALIR and the game-over modal). All game state lives inside the `createX(canvas, callbacks)` closure, no module-level mutable state.
+- **Engine API** (`app/components/asteroids/asteroids-engine.ts`): `createAsteroids(canvas, { onStats, onGameOver })` returns `{ pause, resume, restart, end, destroy }`. The canvas notifies React (`onStats` only when a value changes, `onGameOver(finalScore)`); React controls pause/restart/end. The game keeps its own canvas HUD alongside the React one. `destroy()` must cancel `requestAnimationFrame` and remove every listener (Strict Mode mounts effects twice).
+- **Keyboard**: the engine listens on `window`, ignores events from text inputs, and calls `preventDefault` on its keys except in game over so the modal stays keyboard-usable. Player buttons call `blur()` after click so Space fires instead of re-triggering them.
+- **Scores**: players save through `saveScore` from `app/data/scores.ts` (`localStorage` `av_scores`); components never touch `localStorage` directly.
+- **Catalog**: add the game to `GAMES` in `app/data/games.ts` and a `.cover-<id>` class in `app/globals.css`.
+
 ## Architecture
 
 State of the repo: `app/` is still the untouched `create-next-app` scaffold (`layout.tsx` with default metadata, `page.tsx` boilerplate). The real product is a **design prototype in `references/templates/`** that is meant to be ported into the Next.js app. Path alias: `@/*` → repo root.

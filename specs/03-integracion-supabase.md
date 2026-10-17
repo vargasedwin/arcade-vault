@@ -1,6 +1,6 @@
 # SPEC 03 — Integración base de Supabase en la app Next.js
 
-> **Status:** Aprobado
+> **Status:** Implementado
 > **Depends on:** SPEC 01, SPEC 02
 > **Date:** 2026-10-17
 > **Objective:** Conectar la app Next.js al proyecto Supabase existente con clientes de navegador y servidor tipados en `app/data/supabase/`, variables de entorno y carpeta de migraciones, sin crear tablas ni cambiar ninguna pantalla.
@@ -98,18 +98,18 @@ Cada paso deja la app ejecutable y es commiteable por separado.
 
 ## Criterios de aceptación
 
-- [ ] `npm run lint`, `npx tsc --noEmit` y `npm run build` terminan sin errores.
-- [ ] `package.json` incluye `@supabase/supabase-js` y `@supabase/ssr`.
-- [ ] Existen `app/data/supabase/client.ts`, `app/data/supabase/server.ts` y `app/data/supabase/database.types.ts`, y ambos clientes usan `Database` como genérico.
-- [ ] `.env.example` está versionado con las dos variables vacías; `.env.local` no aparece en `git status`.
-- [ ] Con `npm run dev` y el health check temporal, la llamada al servidor responde `ok: true` contra `https://ydpynaeesipudonboqbr.supabase.co`; con una clave inválida responde `ok: false`.
-- [ ] Sin las variables de entorno, `createClient()` lanza un error que nombra la variable faltante.
-- [ ] El health check temporal fue eliminado: no existe `app/api/supabase-health/` en el commit final.
-- [ ] Existe `supabase/migrations/` versionada y el esquema `public` del proyecto sigue sin tablas.
-- [ ] Ningún archivo bajo `app/components/` ni las páginas importan `@supabase/*` ni `app/data/supabase/`.
-- [ ] La clave `service_role` / secreta no aparece en el repo (`grep` en el árbol sin coincidencias).
-- [ ] `/`, `/games`, `/auth` y `/salon` se comportan igual que antes (sesión y puntajes siguen en `localStorage`).
-- [ ] `CLAUDE.md` documenta la integración de Supabase.
+- [x] `npm run lint`, `npx tsc --noEmit` y `npm run build` terminan sin errores.
+- [x] `package.json` incluye `@supabase/supabase-js` y `@supabase/ssr`.
+- [x] Existen `app/data/supabase/client.ts`, `app/data/supabase/server.ts` y `app/data/supabase/database.types.ts`, y ambos clientes usan `Database` como genérico.
+- [x] `.env.example` está versionado con las dos variables vacías; `.env.local` no aparece en `git status`.
+- [x] Con `npm run dev` y el health check temporal, la llamada al servidor responde `ok: true` contra `https://ydpynaeesipudonboqbr.supabase.co`; con una clave inválida responde `ok: false`.
+- [x] Sin las variables de entorno, `createClient()` lanza un error que nombra la variable faltante.
+- [x] El health check temporal fue eliminado: no existe `app/api/supabase-health/` en el commit final.
+- [x] Existe `supabase/migrations/` versionada y el esquema `public` del proyecto sigue sin tablas.
+- [x] Ningún archivo bajo `app/components/` ni las páginas importan `@supabase/*` ni `app/data/supabase/`.
+- [x] La clave `service_role` / secreta no aparece en el repo (`grep` en el árbol sin coincidencias).
+- [x] `/`, `/games`, `/auth` y `/salon` se comportan igual que antes (sesión y puntajes siguen en `localStorage`).
+- [x] `CLAUDE.md` documenta la integración de Supabase.
 
 ---
 

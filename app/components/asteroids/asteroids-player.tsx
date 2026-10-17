@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import type { Game } from "@/app/data/games";
+import { saveScore } from "@/app/data/scores";
 import { useSession } from "../session-provider";
 import {
   createAsteroids,
@@ -18,17 +19,26 @@ export function AsteroidsPlayer({ game }: { game: Game }) {
     level: 1,
   });
   const [paused, setPaused] = useState(false);
+  const [over, setOver] = useState(false);
+  const [finalScore, setFinalScore] = useState(0);
+  const [nameOverride, setNameOverride] = useState<string | null>(null);
+  const [saved, setSaved] = useState(false);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const engineRef = useRef<AsteroidsHandle | null>(null);
 
-  const name = user?.name ?? "INVITADO";
+  // La sesión llega tras montar; mientras el usuario no edite, se muestra su nombre.
+  const name = nameOverride ?? user?.name ?? "INVITADO";
 
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
     const engine = createAsteroids(canvas, {
       onStats: setStats,
-      onGameOver: () => {},
+      onGameOver: (score) => {
+        setFinalScore(score);
+        setPaused(false);
+        setOver(true);
+      },
     });
     engineRef.current = engine;
     return () => {
@@ -43,6 +53,19 @@ export function AsteroidsPlayer({ game }: { game: Game }) {
     if (paused) engine.resume();
     else engine.pause();
     setPaused(!paused);
+  };
+
+  const restart = () => {
+    // FIN puede pulsarse en pausa: el motor sigue pausado aunque la UI ya no lo muestre.
+    engineRef.current?.resume();
+    engineRef.current?.restart();
+    setOver(false);
+    setSaved(false);
+  };
+
+  const save = async () => {
+    await saveScore({ game: game.id, score: finalScore, name });
+    setSaved(true);
   };
 
   return (
@@ -104,6 +127,40 @@ export function AsteroidsPlayer({ game }: { game: Game }) {
           <span>CARGA · 1MB</span>
         </div>
       </div>
+
+      {over && (
+        <div className="modal-bd">
+          <div className="modal">
+            <h2>FIN DEL JUEGO</h2>
+            <div className="final-label">PUNTUACIÓN FINAL</div>
+            <div className="final">{finalScore.toLocaleString("es-ES")}</div>
+            {!saved ? (
+              <div className="input-row">
+                <input
+                  value={name}
+                  onChange={(e) =>
+                    setNameOverride(e.target.value.toUpperCase().slice(0, 10))
+                  }
+                  placeholder="TUS INICIALES"
+                />
+                <button className="btn yellow" onClick={save}>
+                  GUARDAR PUNTUACIÓN
+                </button>
+              </div>
+            ) : (
+              <div className="toast-saved">▸ PUNTUACIÓN GUARDADA_</div>
+            )}
+            <div className="actions">
+              <button className="btn" onClick={restart}>
+                JUGAR DE NUEVO
+              </button>
+              <Link href="/games" className="btn magenta">
+                VOLVER AL VAULT
+              </Link>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

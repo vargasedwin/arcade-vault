@@ -16,6 +16,17 @@ Next 16.4.2 + React 19.3 with breaking changes versus common training data. Per 
 
 `next.config.ts` enables `cacheComponents`, `partialPrefetching` and `experimental.agentFeedback`, and routes `*.css` through `@tailwindcss/turbopack` (Tailwind v4, configured via `@import "tailwindcss"` and `@theme inline` in `app/globals.css`, no `tailwind.config`). `cacheComponents` changes caching/dynamic-rendering semantics, so check the docs before using dynamic data or `fetch`.
 
+## Supabase
+
+The app is wired to an existing Supabase project (`https://ydpynaeesipudonboqbr.supabase.co`) managed through the Supabase MCP. Integration base only (SPEC 03): no domain tables, no real auth yet; session and scores still live in `localStorage`.
+
+- **Clients** live in `app/data/supabase/`: `client.ts` (`createClient()` for Client Components, `createBrowserClient`) and `server.ts` (async `createClient()` for Server Components and route handlers, `createServerClient` + `cookies()`). Both are typed with `Database` from `database.types.ts` and throw an error naming the missing env var.
+- **`cookies()` under `cacheComponents`**: the server client only works in dynamic code (route handlers, or Server Components inside `<Suspense>`).
+- **Env vars** (`.env.local`, git-ignored; template in `.env.example`): `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` (`sb_publishable_...`). Never store the `service_role`/secret key in the repo or in `NEXT_PUBLIC_*` variables.
+- **Access rule**: only `app/data/` imports `@supabase/*` or `app/data/supabase/`. Components and pages stay unaware of where data comes from.
+- **Schema changes**: apply them as migrations and keep every `.sql` in `supabase/migrations/`. After each migration, regenerate `app/data/supabase/database.types.ts` with the MCP `generate_typescript_types`.
+- Session refresh (`proxy.ts`) arrives with the auth spec.
+
 ## Architecture
 
 State of the repo: `app/` is still the untouched `create-next-app` scaffold (`layout.tsx` with default metadata, `page.tsx` boilerplate). The real product is a **design prototype in `references/templates/`** that is meant to be ported into the Next.js app. Path alias: `@/*` → repo root.

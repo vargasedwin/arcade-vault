@@ -10,14 +10,14 @@ export async function generateStaticParams() {
 }
 
 export async function generateMetadata(
-  props: PageProps<"/juegos/[id]">,
+  props: PageProps<"/games/[id]">,
 ): Promise<Metadata> {
   const { id } = await props.params;
   const game = await getGame(id);
   return { title: game ? `${game.title} · Arcade Vault` : "Juego no encontrado" };
 }
 
-export default async function Page(props: PageProps<"/juegos/[id]">) {
+export default async function Page(props: PageProps<"/games/[id]">) {
   const { id } = await props.params;
   const game = await getGame(id);
   if (!game) notFound();

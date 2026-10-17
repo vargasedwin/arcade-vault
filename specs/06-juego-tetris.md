@@ -1,6 +1,6 @@
 # SPEC 06 — Juego Tetris
 
-> **Estado:** Aprobado
+> **Estado:** Implementado
 > **Depende de:** 04-juego-asteroids, 05-leaderboard-y-tabla-de-juegos
 > **Fecha:** 2026-10-17
 > **Objetivo:** Portar el Tetris de `references/started-games/03-tetris/` como segundo juego real del catálogo (`/games/tetris`), con su propio reproductor en `/games/tetris/jugar` y su leaderboard conectado a Supabase.
@@ -164,41 +164,41 @@ Cada paso deja la app ejecutable y es commiteable por separado.
 
 ## Criterios de aceptación
 
-- [ ] `npm run lint`, `npx tsc --noEmit` y `npm run build` terminan sin errores.
-- [ ] La fila `tetris` existe en `games` con los valores de este spec, la migración está en `supabase/migrations/` y `database.types.ts` está regenerado.
-- [ ] `/games` muestra la card TETRIS con categoría PUZZLE, color magenta y la portada `cover-tetris`; la card de Asteroids sigue igual.
-- [ ] `/games/tetris` muestra el detalle y el leaderboard top 10 (o el estado vacío "Sé el primero en entrar al salón de la fama"); JUGAR navega a `/games/tetris/jugar`.
-- [ ] `/salon` muestra el tab TETRIS junto al de ASTEROIDS y lista hasta 12 filas.
-- [ ] Al abrir `/games/tetris/jugar` aparece el canvas de 480×600 con el tablero 10×20 vacío, una pieza cayendo y el panel con `SCORE 0`, `LINES 0`, `LEVEL 1` y la pieza `NEXT`.
-- [ ] El HUD de React muestra jugador, puntuación 0, líneas 0 y nivel 01, y coincide en todo momento con el panel del canvas.
-- [ ] `←` y `→` mueven la pieza una columna sin atravesar paredes ni bloques.
-- [ ] `↑` y `X` rotan la pieza en sentido horario; pegada a una pared rota aplicando el wall kick (`0, -1, 1, -2, 2`).
-- [ ] `↓` baja la pieza una fila y suma 1 punto; con la pieza apoyada, la fija.
-- [ ] `Espacio` baja la pieza hasta el fondo, la fija y suma 2 puntos por celda recorrida.
-- [ ] La pieza fantasma se dibuja con opacidad 0,2 donde aterrizará la pieza actual.
-- [ ] Las 8 piezas aparecen en partidas largas, incluida la tuerca gris con hueco central.
-- [ ] Completar 1, 2, 3 y 4 líneas a la vez en nivel 1 suma 100, 300, 500 y 800 puntos.
-- [ ] Con 10 líneas el nivel pasa a 2 en ambos HUD y el intervalo de caída baja de 1000 a 910 ms; nunca baja de 100 ms.
-- [ ] Cuando la pieza nueva colisiona al aparecer, el canvas muestra `GAME OVER` con `PUNTAJE: n` y se abre el modal de React con la misma puntuación.
-- [ ] FIN termina la partida y abre el modal igual que un game over.
-- [ ] Con el modal abierto, `Espacio` fuera del campo de nombre no reinicia ni deja caer piezas; dentro del campo se pueden escribir espacios; el campo limita a 10 caracteres en mayúsculas.
-- [ ] Las teclas `P` y `Esc` no pausan ni hacen nada en el canvas, y no existe interruptor de tema; el motor no lee ni escribe `tetris-theme`.
-- [ ] `onStats` no se invoca en los frames sin cambio de `score`, `lines` o `level`.
-- [ ] Con PAUSA activa el canvas sigue dibujándose, pero las teclas de movimiento no mueven ni rotan la pieza.
-- [ ] `onGameOver` se dispara una sola vez por partida (llamar FIN tras perder no abre un segundo modal).
-- [ ] PAUSA detiene la caída, muestra "EN PAUSA" (de React) y cambia el botón a REANUDAR; REANUDAR continúa sin saltos.
-- [ ] Con el juego activo, `←` `→` `↑` `↓` `Espacio` no hacen scroll de la página.
-- [ ] GUARDAR PUNTUACIÓN inserta una fila en `scores` con `game_id: "tetris"`, el puntaje final y el nombre, deshabilita el botón tras el primer envío y la fila aparece en `/games/tetris` y en `/salon` al recargar.
-- [ ] El nombre se pre-rellena desde `av_player_name` en la partida siguiente.
-- [ ] JUGAR DE NUEVO cierra el modal y deja tablero vacío, puntuación 0, líneas 0 y nivel 1.
-- [ ] SALIR navega a `/games/tetris` y VOLVER AL VAULT a `/games`.
-- [ ] Tras salir y volver a entrar a `/games/tetris/jugar` (y en `npm run dev` con Strict Mode), una pulsación de `←` mueve la pieza una sola columna y la pieza cae a velocidad normal: no quedan loops ni listeners duplicados.
-- [ ] `tetris-engine.ts` no usa `document.getElementById` ni variables de módulo mutables, y cada `addEventListener` tiene su `removeEventListener` en `destroy()`.
-- [ ] Ningún archivo bajo `app/components/` accede a `localStorage` ni importa `@supabase/*`.
-- [ ] La consola del navegador no muestra errores ni warnings de React durante una partida completa.
-- [ ] El canvas se ve completo y sin deformar a 1440×900 y a 390×844.
-- [ ] `CLAUDE.md` lista `tetris` como juego real del catálogo.
-- [ ] Ninguna ruta existente (`/`, `/games`, `/games/asteroids`, `/games/asteroids/jugar`, `/salon`) devuelve 500.
+- [x] `npm run lint`, `npx tsc --noEmit` y `npm run build` terminan sin errores.
+- [x] La fila `tetris` existe en `games` con los valores de este spec, la migración está en `supabase/migrations/` y `database.types.ts` está regenerado.
+- [x] `/games` muestra la card TETRIS con categoría PUZZLE, color magenta y la portada `cover-tetris`; la card de Asteroids sigue igual.
+- [x] `/games/tetris` muestra el detalle y el leaderboard top 10 (o el estado vacío "Sé el primero en entrar al salón de la fama"); JUGAR navega a `/games/tetris/jugar`.
+- [x] `/salon` muestra el tab TETRIS junto al de ASTEROIDS y lista hasta 12 filas.
+- [x] Al abrir `/games/tetris/jugar` aparece el canvas de 480×600 con el tablero 10×20 vacío, una pieza cayendo y el panel con `SCORE 0`, `LINES 0`, `LEVEL 1` y la pieza `NEXT`.
+- [x] El HUD de React muestra jugador, puntuación 0, líneas 0 y nivel 01, y coincide en todo momento con el panel del canvas.
+- [x] `←` y `→` mueven la pieza una columna sin atravesar paredes ni bloques.
+- [x] `↑` y `X` rotan la pieza en sentido horario; pegada a una pared rota aplicando el wall kick (`0, -1, 1, -2, 2`).
+- [x] `↓` baja la pieza una fila y suma 1 punto; con la pieza apoyada, la fija.
+- [x] `Espacio` baja la pieza hasta el fondo, la fija y suma 2 puntos por celda recorrida.
+- [x] La pieza fantasma se dibuja con opacidad 0,2 donde aterrizará la pieza actual.
+- [x] Las 8 piezas aparecen en partidas largas, incluida la tuerca gris con hueco central.
+- [x] Completar 1, 2, 3 y 4 líneas a la vez en nivel 1 suma 100, 300, 500 y 800 puntos.
+- [x] Con 10 líneas el nivel pasa a 2 en ambos HUD y el intervalo de caída baja de 1000 a 910 ms; nunca baja de 100 ms.
+- [x] Cuando la pieza nueva colisiona al aparecer, el canvas muestra `GAME OVER` con `PUNTAJE: n` y se abre el modal de React con la misma puntuación.
+- [x] FIN termina la partida y abre el modal igual que un game over.
+- [x] Con el modal abierto, `Espacio` fuera del campo de nombre no reinicia ni deja caer piezas; dentro del campo se pueden escribir espacios; el campo limita a 10 caracteres en mayúsculas.
+- [x] Las teclas `P` y `Esc` no pausan ni hacen nada en el canvas, y no existe interruptor de tema; el motor no lee ni escribe `tetris-theme`.
+- [x] `onStats` no se invoca en los frames sin cambio de `score`, `lines` o `level`.
+- [x] Con PAUSA activa el canvas sigue dibujándose, pero las teclas de movimiento no mueven ni rotan la pieza.
+- [x] `onGameOver` se dispara una sola vez por partida (llamar FIN tras perder no abre un segundo modal).
+- [x] PAUSA detiene la caída, muestra "EN PAUSA" (de React) y cambia el botón a REANUDAR; REANUDAR continúa sin saltos.
+- [x] Con el juego activo, `←` `→` `↑` `↓` `Espacio` no hacen scroll de la página.
+- [x] GUARDAR PUNTUACIÓN inserta una fila en `scores` con `game_id: "tetris"`, el puntaje final y el nombre, deshabilita el botón tras el primer envío y la fila aparece en `/games/tetris` y en `/salon` al recargar.
+- [x] El nombre se pre-rellena desde `av_player_name` en la partida siguiente.
+- [x] JUGAR DE NUEVO cierra el modal y deja tablero vacío, puntuación 0, líneas 0 y nivel 1.
+- [x] SALIR navega a `/games/tetris` y VOLVER AL VAULT a `/games`.
+- [x] Tras salir y volver a entrar a `/games/tetris/jugar` (y en `npm run dev` con Strict Mode), una pulsación de `←` mueve la pieza una sola columna y la pieza cae a velocidad normal: no quedan loops ni listeners duplicados.
+- [x] `tetris-engine.ts` no usa `document.getElementById` ni variables de módulo mutables, y cada `addEventListener` tiene su `removeEventListener` en `destroy()`.
+- [x] Ningún archivo bajo `app/components/` accede a `localStorage` ni importa `@supabase/*`.
+- [x] La consola del navegador no muestra errores ni warnings de React durante una partida completa.
+- [x] El canvas se ve completo y sin deformar a 1440×900 y a 390×844.
+- [x] `CLAUDE.md` lista `tetris` como juego real del catálogo.
+- [x] Ninguna ruta existente (`/`, `/games`, `/games/asteroids`, `/games/asteroids/jugar`, `/salon`) devuelve 500.
 
 ---
 

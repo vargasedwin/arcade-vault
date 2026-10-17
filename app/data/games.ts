@@ -102,6 +102,17 @@ export const GAMES: Game[] = [
     best: 24,
     plays: "4.2K",
   },
+  {
+    id: "asteroids",
+    title: "ASTEROIDS",
+    short: "Rota, propulsa y dispara entre rocas en el vacío.",
+    long: "Tu nave triangular flota en un espacio sin bordes. Rota, propulsa y dispara para partir cada roca en fragmentos más pequeños. Recoge el 3x para disparar en abanico. Tienes tres vidas.",
+    cat: "SHOOTER",
+    cover: "cover-asteroids",
+    color: "cyan",
+    best: 32600,
+    plays: "2.1K",
+  },
 ];
 
 export const CATS: ("TODOS" | Category)[] = [

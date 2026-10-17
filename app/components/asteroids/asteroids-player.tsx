@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import type { Game } from "@/app/data/games";
 import { useSession } from "../session-provider";
@@ -16,6 +17,7 @@ export function AsteroidsPlayer({ game }: { game: Game }) {
     lives: 3,
     level: 1,
   });
+  const [paused, setPaused] = useState(false);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const engineRef = useRef<AsteroidsHandle | null>(null);
 
@@ -34,6 +36,14 @@ export function AsteroidsPlayer({ game }: { game: Game }) {
       engineRef.current = null;
     };
   }, []);
+
+  const togglePause = () => {
+    const engine = engineRef.current;
+    if (!engine) return;
+    if (paused) engine.resume();
+    else engine.pause();
+    setPaused(!paused);
+  };
 
   return (
     <div className="av-player fade-in">
@@ -56,6 +66,17 @@ export function AsteroidsPlayer({ game }: { game: Game }) {
             <div className="v">{String(stats.level).padStart(2, "0")}</div>
           </div>
         </div>
+        <div className="hud-actions">
+          <button className="btn yellow" onClick={togglePause}>
+            {paused ? "REANUDAR" : "PAUSA"}
+          </button>
+          <button className="btn magenta" onClick={() => engineRef.current?.end()}>
+            FIN
+          </button>
+          <Link href={`/games/${game.id}`} className="btn ghost">
+            SALIR
+          </Link>
+        </div>
       </div>
 
       <div className="crt">
@@ -66,6 +87,16 @@ export function AsteroidsPlayer({ game }: { game: Game }) {
             height={600}
             className="absolute inset-0 block h-full w-full"
           />
+          {paused && (
+            <div className="crt-content z-5 bg-black/60">
+              <div>
+                <div className="pixel neon-yellow text-[22px]">EN PAUSA</div>
+                <div className="mono mt-2.5 text-[11px] tracking-[0.16em] text-(--ink-dim)">
+                  PULSA REANUDAR PARA CONTINUAR
+                </div>
+              </div>
+            </div>
+          )}
         </div>
         <div className="crt-bottom">
           <span className="led">SEÑAL OK</span>

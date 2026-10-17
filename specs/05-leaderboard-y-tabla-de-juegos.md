@@ -1,6 +1,6 @@
 # SPEC 05 — Tabla de juegos y leaderboard con Supabase
 
-> **Estado:** Aprobado
+> **Estado:** Implementado
 > **Depende de:** 04-juego-asteroids
 > **Fecha:** 2026-10-17
 > **Objetivo:** Migrar los datos de juegos a una tabla `games` en Supabase y conectar
@@ -202,26 +202,26 @@ antes del paso 6 (estados vacíos), según `CLAUDE.md`.
 
 ## Acceptance criteria
 
-- [ ] Las tablas `games` y `scores` existen en Supabase con las columnas del data model.
-- [ ] La fila `asteroids` está presente en la tabla `games`.
-- [ ] Las migraciones están en `supabase/migrations/` y `database.types.ts` refleja ambas tablas.
-- [ ] El array `GAMES` local y la función `seededScores` han sido eliminados del codebase.
-- [ ] `/games` carga y muestra únicamente los juegos presentes en Supabase (solo Asteroids).
-- [ ] `/games/asteroids` muestra los datos reales del juego y el leaderboard top 10.
-- [ ] `/games/[id]` con un id inexistente muestra la página de no encontrado con `noindex`.
-- [ ] `/salon` muestra únicamente tabs de juegos presentes en Supabase.
-- [ ] Cuando no hay scores, los leaderboards muestran el mensaje de estado vacío
+- [x] Las tablas `games` y `scores` existen en Supabase con las columnas del data model.
+- [x] La fila `asteroids` está presente en la tabla `games`.
+- [x] Las migraciones están en `supabase/migrations/` y `database.types.ts` refleja ambas tablas.
+- [x] El array `GAMES` local y la función `seededScores` han sido eliminados del codebase.
+- [x] `/games` carga y muestra únicamente los juegos presentes en Supabase (solo Asteroids).
+- [x] `/games/asteroids` muestra los datos reales del juego y el leaderboard top 10.
+- [x] `/games/[id]` con un id inexistente muestra la página de no encontrado con `noindex`.
+- [x] `/salon` muestra únicamente tabs de juegos presentes en Supabase.
+- [x] Cuando no hay scores, los leaderboards muestran el mensaje de estado vacío
       en lugar de datos falsos.
-- [ ] Al terminar una partida de Asteroids, el modal pre-rellena el nombre desde
+- [x] Al terminar una partida de Asteroids, el modal pre-rellena el nombre desde
       `localStorage` si existe.
-- [ ] Al confirmar el nombre en el modal, el score se inserta en Supabase y el
+- [x] Al confirmar el nombre en el modal, el score se inserta en Supabase y el
       nombre se persiste en `localStorage` para la próxima partida.
-- [ ] El botón de guardar se deshabilita tras el primer envío (sin doble inserción).
-- [ ] El score guardado aparece en `/games/asteroids` y en `/salon` al recargar.
-- [ ] Ningún componente ni página importa `@supabase/*` ni `app/data/supabase/`, y
+- [x] El botón de guardar se deshabilita tras el primer envío (sin doble inserción).
+- [x] El score guardado aparece en `/games/asteroids` y en `/salon` al recargar.
+- [x] Ningún componente ni página importa `@supabase/*` ni `app/data/supabase/`, y
       ningún archivo de `app/components/` accede a `localStorage`.
-- [ ] `npm run lint`, `npx tsc --noEmit` y `npm run build` completan sin errores.
-- [ ] Ninguna ruta existente devuelve 500.
+- [x] `npm run lint`, `npx tsc --noEmit` y `npm run build` completan sin errores.
+- [x] Ninguna ruta existente devuelve 500.
 
 ---
 

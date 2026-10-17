@@ -53,11 +53,29 @@ export function createAsteroids(
   let keys: Record<string, boolean> = {};
   let justPressed: Record<string, boolean> = {};
 
+  const GAME_KEYS = ["ArrowLeft", "ArrowRight", "ArrowUp", "Space"];
+
+  const isTextTarget = (e: KeyboardEvent) =>
+    e.target instanceof HTMLElement &&
+    (e.target.tagName === "INPUT" ||
+      e.target.tagName === "TEXTAREA" ||
+      e.target.isContentEditable);
+
+  // Evita el scroll de la página y que Espacio active el botón con foco.
+  // En game over se deja el comportamiento nativo para poder usar el modal con teclado.
+  const swallow = (e: KeyboardEvent) => {
+    if (GAME_KEYS.includes(e.code) && !isTextTarget(e) && state !== "gameover")
+      e.preventDefault();
+  };
+
   const onKeyDown = (e: KeyboardEvent) => {
+    if (isTextTarget(e)) return;
+    swallow(e);
     if (!keys[e.code]) justPressed[e.code] = true;
     keys[e.code] = true;
   };
   const onKeyUp = (e: KeyboardEvent) => {
+    swallow(e);
     keys[e.code] = false;
   };
   window.addEventListener("keydown", onKeyDown);

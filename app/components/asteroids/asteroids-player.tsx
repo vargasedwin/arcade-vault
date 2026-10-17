@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type MouseEvent } from "react";
 import type { Game } from "@/app/data/games";
 import { saveScore } from "@/app/data/scores";
 import { useSession } from "../session-provider";
@@ -47,7 +47,9 @@ export function AsteroidsPlayer({ game }: { game: Game }) {
     };
   }, []);
 
-  const togglePause = () => {
+  // El botón no debe conservar el foco: Espacio dispara, no reactiva PAUSA/FIN.
+  const togglePause = (e: MouseEvent<HTMLButtonElement>) => {
+    e.currentTarget.blur();
     const engine = engineRef.current;
     if (!engine) return;
     if (paused) engine.resume();
@@ -93,7 +95,13 @@ export function AsteroidsPlayer({ game }: { game: Game }) {
           <button className="btn yellow" onClick={togglePause}>
             {paused ? "REANUDAR" : "PAUSA"}
           </button>
-          <button className="btn magenta" onClick={() => engineRef.current?.end()}>
+          <button
+            className="btn magenta"
+            onClick={(e) => {
+              e.currentTarget.blur();
+              engineRef.current?.end();
+            }}
+          >
             FIN
           </button>
           <Link href={`/games/${game.id}`} className="btn ghost">
@@ -121,10 +129,10 @@ export function AsteroidsPlayer({ game }: { game: Game }) {
             </div>
           )}
         </div>
-        <div className="crt-bottom">
+        <div className="crt-bottom flex-wrap gap-x-4 gap-y-2">
           <span className="led">SEÑAL OK</span>
           <span>{game.title} · CRT-83 · 60 HZ</span>
-          <span>CARGA · 1MB</span>
+          <span>← → ROTAR · ↑ PROPULSAR · ESPACIO DISPARAR</span>
         </div>
       </div>
 

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { Game } from "@/app/data/games";
 import type { LeaderboardRow } from "@/app/data/scores";
+import { EmptyScores } from "./empty-scores";
 
 const TOP_CLASS = ["top1", "top2", "top3"];
 
@@ -56,8 +57,9 @@ export function GameDetail({
       <aside>
         <div className="leaderboard">
           <h3>MEJORES PUNTUACIONES</h3>
+          {scores.length === 0 && <EmptyScores gameTitle={game.title} />}
           {scores.map((r, i) => (
-            <div key={r.name} className={"lb-row" + (TOP_CLASS[i] ? " " + TOP_CLASS[i] : "")}>
+            <div key={r.rank} className={"lb-row" + (TOP_CLASS[i] ? " " + TOP_CLASS[i] : "")}>
               <div className="rk">#{String(r.rank).padStart(2, "0")}</div>
               <div className="pl">
                 {r.name}

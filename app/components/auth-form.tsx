@@ -15,12 +15,12 @@ export function AuthForm() {
   const submit = async (e: FormEvent) => {
     e.preventDefault();
     await signIn({ name: (user || "PLAYER1").toUpperCase().slice(0, 10) });
-    router.push("/");
+    router.push("/games");
   };
 
   const guest = async () => {
     await signIn(null);
-    router.push("/");
+    router.push("/games");
   };
 
   return (

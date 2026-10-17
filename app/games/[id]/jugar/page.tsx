@@ -9,7 +9,7 @@ export async function generateStaticParams() {
 }
 
 export async function generateMetadata(
-  props: PageProps<"/juegos/[id]/jugar">,
+  props: PageProps<"/games/[id]/jugar">,
 ): Promise<Metadata> {
   const { id } = await props.params;
   const game = await getGame(id);
@@ -18,7 +18,7 @@ export async function generateMetadata(
   };
 }
 
-export default async function Page(props: PageProps<"/juegos/[id]/jugar">) {
+export default async function Page(props: PageProps<"/games/[id]/jugar">) {
   const { id } = await props.params;
   const game = await getGame(id);
   if (!game) notFound();

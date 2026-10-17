@@ -162,7 +162,11 @@ antes del paso 6 (estados vacíos), según `CLAUDE.md`.
 5. **Migrar `app/games/[id]/page.tsx`** — lectura del juego por `id` y top 10 scores
    de ese juego (ordenados por `score DESC`); calcular `best` como el primer
    resultado. Si el juego no existe → `notFound()`. Quitar `generateStaticParams`
-   si ya no aplica.
+   (ya no aplica: `getGames()` usa `cookies()` y no puede correr en build) y declarar
+   `export const instant = false` en la página. El juego se lee fuera de `<Suspense>`
+   para que `notFound()` devuelva un 404 real; solo el top 10 va en `<Suspense>`.
+   Quitar la celda "Partidas" de `GameDetail` (no existe `plays`) y mostrar "—" en
+   "Mejor global" si no hay scores.
    Verificación: `/games/asteroids` carga con los datos reales; un id inválido
    devuelve 404.
 
@@ -247,6 +251,18 @@ antes del paso 6 (estados vacíos), según `CLAUDE.md`.
 - **Sí: Acceso a Supabase y `localStorage` solo desde `app/data/`** — los
   componentes reciben datos por props o llaman helpers. Razón: regla vigente de
   SPEC 03/04.
+
+- **Sí: `export const instant = false` en `app/games/[id]/page.tsx`** — la ruta se
+  declara "puede bloquear" (API de segmento estable desde Next 16.3; no cambia el
+  modelo de renderizado). Razón: con la lectura del juego dentro de `<Suspense>` el
+  estado HTTP ya se envió como 200 al ejecutarse `notFound()` (soft 404); leyéndolo
+  antes del streaming se devuelve 404. Al quitar `generateStaticParams`, Next también
+  intentaba prerenderizar la ruta y fallaba por `usePathname()` de `Nav` fuera de
+  `<Suspense>`; `instant = false` lo resuelve.
+
+- **Sí: Quitar la celda "Partidas" de `GameDetail`** — `plays` no existe como columna
+  y el conteo de partidas queda fuera de alcance. "Mejor global" se calcula del
+  primer score del top 10 y muestra "—" sin scores.
 
 - **Sí: Separar `.ts` (client-safe) de `.server.ts` (solo servidor) en `app/data/`** —
   `games.server.ts` y `scores.server.ts` usan el cliente `server.ts` con

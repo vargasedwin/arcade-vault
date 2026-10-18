@@ -120,18 +120,21 @@ export function TetrisPlayer({ game }: { game: Game }) {
         </div>
       </div>
 
-      {/* El canvas (4:5) es más alto que ancho: se limita su ancho para que quepa en el alto visible.
-          315px = nav + HUD + marco y pie del CRT; 48px = padding del marco. */}
-      <div
-        className="crt mx-auto"
-        style={{ width: "min(100%, calc(min(480px, max(200px, (100svh - 315px) * 4 / 5)) + 48px))" }}
-      >
-        <div className="crt-screen" style={{ aspectRatio: "4 / 5" }}>
+      {/* El marco ocupa todo el ancho del HUD; el canvas (4:5) se centra dentro y su alto se limita
+          al viewport. 315px = nav + HUD + marco y pie del CRT; 96px = padding del player + del marco. */}
+      <div className="crt">
+        <div
+          className="crt-screen"
+          style={{
+            height: "min(600px, max(250px, 100svh - 315px), (100vw - 96px) * 5 / 4)",
+            background: "#1a1a25",
+          }}
+        >
           <canvas
             ref={canvasRef}
             width={480}
             height={600}
-            className="absolute inset-0 block h-full w-full"
+            className="absolute inset-0 block h-full w-full object-contain"
           />
           {paused && (
             <div className="crt-content z-5 bg-black/60">
